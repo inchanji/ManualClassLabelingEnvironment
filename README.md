@@ -1,6 +1,6 @@
 # Manual Class Labeling Environment
 
-This project uses the Google Maps API and USDA National Farmers Market Directory API to create a mashup where visitors can search for Farmers Markets in the US by entering a zip code, then Farmers Markets near that zip code will be shown on the map. You can click on a marker or an item in the result list to view more info about the market such as address, schedule, and products.
+This project is the opposite of Automatic Labelling Environment (ALE; developed by the Oxford Brookes Vision Group) which automatically labels class on each pixel in image. 
 
 ## Demo
 
