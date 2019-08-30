@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from PIL import ImageQt, Image
 import os
 import ntpath
 import matplotlib.path
@@ -121,7 +122,17 @@ def loadImage(self):
 
 	pathsave 		= pathdir + 'segmentation/' + filename.split('.')[0] + '_seg.bmp'
 
-	pixmap 			= QPixmap(self.imagePath.text())	
+	img 	 = Image.open(self.imagePath.text())
+	Nchannel = len(img.split())
+
+	if Nchannel == 4:
+		img = np.array(img)[:,:,:3].astype(np.uint8)
+		height, width, channel = np.shape(img)
+		bytesPerLine = 3 * width
+		qimg   = QImage(img, width, height, bytesPerLine, QImage.Format_RGB888)
+		pixmap = QPixmap(qimg)
+	else:
+		pixmap 			= QPixmap(self.imagePath.text())	
 
 	self.qImage0 	= QImage(pixmap.copy())
 	self.imgWidth 	= self.qImage0.width()
