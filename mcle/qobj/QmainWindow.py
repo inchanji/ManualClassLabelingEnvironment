@@ -20,11 +20,11 @@ from src.clsobjhandler import *
 
 def getIcon(path):
 	app_icon = QIcon()
-	app_icon.addFile(path + '16x16.png',   QSize(16,16))
-	app_icon.addFile(path + '24x24.png',   QSize(24,24))
-	app_icon.addFile(path + '32x32.png',   QSize(32,32))
-	app_icon.addFile(path + '48x48.png',   QSize(48,48))
-	app_icon.addFile(path + '256x256.png', QSize(256,256))
+	app_icon.addFile(os.path.join(path, '16x16.png'),   QSize(16,16))
+	app_icon.addFile(os.path.join(path, '24x24.png'),   QSize(24,24))
+	app_icon.addFile(os.path.join(path, '32x32.png'),   QSize(32,32))
+	app_icon.addFile(os.path.join(path, '48x48.png'),   QSize(48,48))
+	app_icon.addFile(os.path.join(path, '256x256.png'), QSize(256,256))
 	return app_icon
 
 
