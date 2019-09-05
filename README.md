@@ -5,4 +5,4 @@ This project is the opposite of Automatic Labelling Environment (ALE; developed 
 ## Demo
 
 
-![Manual ClassLabeling Environment - Animated gif demo](demo/demo.gif)
+![Manual ClassLabeling Environment - Animated gif demo](demo/demo2.gif)
