@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import * 
 from PyQt5.QtGui import *
+from src.clsobjhandler import *
+import os
 
 BTN_MIN_WIDTH 		= 100
 BTN_MAX_WIDTH 		= 200
@@ -30,14 +32,18 @@ def configLayout(self):
 	HBlayoutOpenImage 		= setLayoutOpenImage(self)
 
 	# 'Save image' button
-	HBlayoutSaveImage 		= setLayoutSaveImage(self)
+	HBlayoutSaveSegImage 	= setLayoutSaveSegImage(self)
+	HBlayoutSaveObjImage 	= setLayoutSaveObjImage(self)
 
 	# 'Image Info' widget
 	HBlayoutImageInfo 		= setLayoutImageInfo(self)
 
+	# Object / Class List
+	VBlayoutObjectClassControl = setLayoutObjectClassView(self)
+
 	# File System Widget
 	#VBlayoutFileView 		= setLayoutFileView(self)
-	VBlayoutFileView = setLayoutFileViewLabelView(self)
+	VBlayoutFileView 		= setLayoutFileViewNew(self)
 
 	# Arrange all layout classes # 
 	# Main layout
@@ -76,25 +82,31 @@ def configLayout(self):
 	# VBox including Load + Save + Status
 	VBlayoutLSS = QVBoxLayout()
 	VBlayoutLSS.setAlignment(Qt.AlignLeft)
-	VBlayoutLSS.addLayout(HBlayoutOpenImage)
-	VBlayoutLSS.addLayout(HBlayoutSaveImage)
-	VBlayoutLSS.addLayout(HBlayoutImageInfo)
+	VBlayoutLSS.addLayout(HBlayoutOpenImage, 1)
+	VBlayoutLSS.addLayout(HBlayoutSaveSegImage,1)
+	VBlayoutLSS.addLayout(HBlayoutSaveObjImage,1)
+	VBlayoutLSS.addLayout(HBlayoutImageInfo,  7)
 
 
 	# HBlayoutMain
-	HBlayoutMain.addLayout(VBlayoutLSS)
-	HBlayoutMain.addLayout(VBlayoutViewInfo)
+	HBlayoutMain.addLayout(VBlayoutLSS,     4)
+	HBlayoutMain.addLayout(VBlayoutViewInfo,4)
 
 	# Main View widget layout
 	LayoutMainView.addLayout(HBlayoutViewMain, 8)
 	LayoutMainView.addLayout(HBlayoutMain,     2)
 
-	HLayoutMain.addLayout(LayoutMainView,  8)
-	HLayoutMain.addLayout(VBlayoutFileView,2)
+	HLayoutMain.addLayout(LayoutMainView,   8)
+	HLayoutMain.addLayout(VBlayoutObjectClassControl, 2)
+	HLayoutMain.addLayout(VBlayoutFileView, 2)
 
 
-	LayoutMain.addLayout(HBlayoutEdits)
-	LayoutMain.addLayout(HLayoutMain)
+
+
+	LayoutMain.addLayout(HBlayoutEdits, 1) 		# Edit buttons
+	LayoutMain.addLayout(HLayoutMain,   9)		# layout below buttons
+
+	self.SBObjClsLabeler.setValue(1)
 
 
 
@@ -103,24 +115,26 @@ def setLayoutEdit(self):
 	HBlayoutEdits = QHBoxLayout() 
 	HBlayoutEdits.setAlignment(Qt.AlignLeft)
 
-	BtnInspect = QPushButton()
-	BtnInspect.setIcon(QIcon(self.PWD+'/res/magnifying_glass.png'))
-	BtnInspect.setText('I')
-	BtnInspect.setMinimumWidth(ICON_MIN_WIDTH)
-	BtnInspect.setMinimumHeight(ICON_MIN_HEIGHT)
-	BtnInspect.clicked.connect(self.switchInspectionMode)
-	BtnInspect.setToolTip('Image/pixel Inspection')
+	self.BtnInspect = QPushButton()
+	self.BtnInspect.setCheckable(True)
+	self.BtnInspect.setIcon(QIcon(os.path.join(self.PWD,'res','magnifying_glass.png')))
+	self.BtnInspect.setText('I')
+	self.BtnInspect.setMinimumWidth(ICON_MIN_WIDTH)
+	self.BtnInspect.setMinimumHeight(ICON_MIN_HEIGHT)
+	self.BtnInspect.clicked.connect(self.switchInspectionMode)
+	self.BtnInspect.setToolTip('Image/pixel Inspection')
 
-	BtnMarkPoint = QPushButton()
-	BtnMarkPoint.setIcon(QIcon(self.PWD+'/res/pin.png'))
-	BtnMarkPoint.setText('M')
-	BtnMarkPoint.setMinimumWidth(ICON_MIN_WIDTH)
-	BtnMarkPoint.setMinimumHeight(ICON_MIN_HEIGHT)
-	BtnMarkPoint.clicked.connect(self.switchMarkPointMode)
-	BtnMarkPoint.setToolTip('Pixel Marker of Class Label')
+	self.BtnMarkPoint = QPushButton()
+	self.BtnMarkPoint.setCheckable(True)
+	self.BtnMarkPoint.setIcon(QIcon(os.path.join(self.PWD,'res','pin.png')))
+	self.BtnMarkPoint.setText('M')
+	self.BtnMarkPoint.setMinimumWidth(ICON_MIN_WIDTH)
+	self.BtnMarkPoint.setMinimumHeight(ICON_MIN_HEIGHT)
+	self.BtnMarkPoint.clicked.connect(self.switchMarkPointMode)
+	self.BtnMarkPoint.setToolTip('Pixel Marker of Class Label')
 
 	BtnReset = QPushButton()
-	BtnReset.setIcon(QIcon('res/reset.png'))
+	BtnReset.setIcon(QIcon(os.path.join('res','reset.png')))
 	BtnReset.setText(u"\u2318" + "R")
 	BtnReset.setMinimumWidth(ICON_MIN_WIDTH)
 	BtnReset.setMinimumHeight(ICON_MIN_HEIGHT)	
@@ -128,24 +142,25 @@ def setLayoutEdit(self):
 	BtnReset.setToolTip('Reset All')
 
 	BtnGoBack = QPushButton()
-	BtnGoBack.setIcon(QIcon(self.PWD+'/res/left_arrow.png'))
+	BtnGoBack.setIcon(QIcon(os.path.join(self.PWD,'res','left_arrow.png')))
 	BtnGoBack.setText(u"\u232B")
 	BtnGoBack.setMinimumWidth(ICON_MIN_WIDTH)
 	BtnGoBack.setMinimumHeight(ICON_MIN_HEIGHT)	
 	BtnGoBack.clicked.connect(self.delOneMarkPoint)
 	BtnGoBack.setToolTip('Go One Step Back (Pixel Marker)')
 
-	BtnFillLabelOnePixel = QPushButton()
-	BtnFillLabelOnePixel.setIcon(QIcon(self.PWD+'/res/dropper.png'))
-	BtnFillLabelOnePixel.setText("P")
-	BtnFillLabelOnePixel.setMinimumWidth(ICON_MIN_WIDTH)
-	BtnFillLabelOnePixel.setMinimumHeight(ICON_MIN_HEIGHT)	
-	BtnFillLabelOnePixel.clicked.connect(self.switchFillPixelMode)
-	BtnFillLabelOnePixel.setToolTip('Fill Class Label in One Pixel')
+	self.BtnFillLabelOnePixel = QPushButton()
+	self.BtnFillLabelOnePixel.setCheckable(True)
+	self.BtnFillLabelOnePixel.setIcon(QIcon(os.path.join(self.PWD,'res','dropper.png')))
+	self.BtnFillLabelOnePixel.setText("P")
+	self.BtnFillLabelOnePixel.setMinimumWidth(ICON_MIN_WIDTH)
+	self.BtnFillLabelOnePixel.setMinimumHeight(ICON_MIN_HEIGHT)	
+	self.BtnFillLabelOnePixel.clicked.connect(self.switchFillPixelMode)
+	self.BtnFillLabelOnePixel.setToolTip('Fill Class Label in One Pixel')
 
 
 	BtnDrawLineBtwPoints = QPushButton()
-	BtnDrawLineBtwPoints.setIcon(QIcon(self.PWD+'/res/line.png'))
+	BtnDrawLineBtwPoints.setIcon(QIcon(os.path.join(self.PWD,'res','line.png')))
 	BtnDrawLineBtwPoints.setText('L')
 	BtnDrawLineBtwPoints.setMinimumWidth(ICON_MIN_WIDTH)
 	BtnDrawLineBtwPoints.setMinimumHeight(ICON_MIN_HEIGHT)	
@@ -160,7 +175,7 @@ def setLayoutEdit(self):
 	#print('contentsMargins(): ',SBScaleLineWidth.getContentsMargins())
 
 	BtnFillInsidePoints = QPushButton()
-	BtnFillInsidePoints.setIcon(QIcon(self.PWD+'/res/fill.png'))
+	BtnFillInsidePoints.setIcon(QIcon(os.path.join(self.PWD,'res','fill.png')))
 	BtnFillInsidePoints.setText('F')
 	BtnFillInsidePoints.setMinimumWidth(ICON_MIN_WIDTH)
 	BtnFillInsidePoints.setMinimumHeight(ICON_MIN_HEIGHT)	
@@ -168,7 +183,7 @@ def setLayoutEdit(self):
 	BtnFillInsidePoints.setToolTip('Finish Marking Points and Fill Class Labels inside Boundary')
 
 	BtnDrawBoundary = QPushButton()
-	BtnDrawBoundary.setIcon(QIcon(self.PWD+'/res/bndry.png'))
+	BtnDrawBoundary.setIcon(QIcon(os.path.join(self.PWD,'res','bndry.png')))
 	BtnDrawBoundary.setText('B')
 	BtnDrawBoundary.setMinimumWidth(ICON_MIN_WIDTH)
 	BtnDrawBoundary.setMinimumHeight(ICON_MIN_HEIGHT)	
@@ -182,7 +197,7 @@ def setLayoutEdit(self):
 
 
 	BtnZoomIn = QPushButton()
-	BtnZoomIn.setIcon(QIcon(self.PWD+'/res/zoomin.png'))
+	BtnZoomIn.setIcon(QIcon(os.path.join(self.PWD,'res','zoomin.png')))
 	BtnZoomIn.setText(u"\u2318" + "+")
 	BtnZoomIn.setMinimumWidth(ICON_MIN_WIDTH)
 	BtnZoomIn.setMinimumHeight(ICON_MIN_HEIGHT)	
@@ -190,7 +205,7 @@ def setLayoutEdit(self):
 	BtnZoomIn.setToolTip('Zoom-in Image')
 
 	BtnZoomOut = QPushButton()
-	BtnZoomOut.setIcon(QIcon(self.PWD+'/res/zoomout.png'))
+	BtnZoomOut.setIcon(QIcon(os.path.join(self.PWD,'res','zoomout.png')))
 	BtnZoomOut.setText(u"\u2318" + "-")
 	BtnZoomOut.setMinimumWidth(ICON_MIN_WIDTH)
 	BtnZoomOut.setMinimumHeight(ICON_MIN_HEIGHT)	
@@ -198,7 +213,7 @@ def setLayoutEdit(self):
 	BtnZoomOut.setToolTip('Zoom-out Image')
 
 	BtnFitIn = QPushButton()
-	BtnFitIn.setIcon(QIcon(self.PWD+'/res/fitin.png'))
+	BtnFitIn.setIcon(QIcon(os.path.join(self.PWD,'res','fitin.png')))
 	BtnFitIn.setText(u"\u2318" + "0")
 	BtnFitIn.setMinimumWidth(ICON_MIN_WIDTH)
 	BtnFitIn.setMinimumHeight(ICON_MIN_HEIGHT)	
@@ -212,11 +227,11 @@ def setLayoutEdit(self):
 	QLMoveImageFrame.setText('Move Image Frame: '+ u'\u2190 \u2191 \u2193 \u2192')
 	QLMoveImageFrame.setEnabled(False)
 
-	HBlayoutEdits.addWidget(BtnInspect)
-	HBlayoutEdits.addWidget(BtnMarkPoint)
+	HBlayoutEdits.addWidget(self.BtnInspect)
+	HBlayoutEdits.addWidget(self.BtnMarkPoint)
 	HBlayoutEdits.addWidget(BtnReset)
 	HBlayoutEdits.addWidget(BtnGoBack)
-	HBlayoutEdits.addWidget(BtnFillLabelOnePixel)
+	HBlayoutEdits.addWidget(self.BtnFillLabelOnePixel)
 	HBlayoutEdits.addWidget(BtnDrawLineBtwPoints)
 	HBlayoutEdits.addWidget(SBScaleLineWidth)
 	HBlayoutEdits.addWidget(BtnFillInsidePoints)
@@ -232,11 +247,34 @@ def setLayoutEdit(self):
 
 
 def setLayoutView(self):
+	QLabelImgView = QLabel()
+	QLabelImgView.setAlignment(Qt.AlignBottom)
+	QLabelImgView.setText('Image Viewer')	
+
+	QLabelClassSegView = QLabel()
+	QLabelClassSegView.setAlignment(Qt.AlignBottom)
+	QLabelClassSegView.setText('Class Viewer')	
+
+	QLabelObjSegView = QLabel()
+	QLabelObjSegView.setAlignment(Qt.AlignBottom)
+	QLabelObjSegView.setText('Object Viewer')	
+
+
+	VBlayoutView1 = QVBoxLayout() 
+	VBlayoutView1.addWidget(QLabelImgView, 0.1)
+	VBlayoutView1.addWidget(self.imgviewer,  19)	
+
+	VBlayoutView2 = QVBoxLayout() 
+	VBlayoutView2.addWidget(QLabelClassSegView, 1)
+	VBlayoutView2.addWidget(self.classSegViewer,  19)
+	VBlayoutView2.addWidget(QLabelObjSegView, 1)
+	VBlayoutView2.addWidget(self.objectSegViewer, 19)	
+
 
 	HBlayoutView = QHBoxLayout() 
 	HBlayoutView.setAlignment(Qt.AlignTop)
-	HBlayoutView.addWidget(self.imgviewer, 7)
-	HBlayoutView.addWidget(self.segviewer, 3)
+	HBlayoutView.addLayout(VBlayoutView1, 7)
+	HBlayoutView.addLayout(VBlayoutView2, 3)	
 	return HBlayoutView
 
 
@@ -264,9 +302,9 @@ def setLayoutSelectClassLabel(self):
 	HBlayoutSelectClassLabel.setAlignment(Qt.AlignCenter)
 	
 	QLselectLbl = QLabel()
-	QLselectLbl.setAlignment(Qt.AlignLeft)
+	QLselectLbl.setAlignment(Qt.AlignCenter)
 	QLselectLbl.setScaledContents(True)
-	QLselectLbl.setText('Select/Enter Class Label (' + u'\u2193'  + ': < ,' + u'\u2191' + ':  >)')		
+	QLselectLbl.setText('Select/Enter Class Label (' + u'\u2193'  + ': - ,' + u'\u2191' + ':  +)')		
 
 	self.QLEselectLbl = QSpinBox()
 	self.QLEselectLbl.setToolTip('Change Class Label Index')	
@@ -313,22 +351,45 @@ def setLayoutOpenImage(self):
 	return HBlayoutLoad
 
 
-def setLayoutSaveImage(self):
+def setLayoutSaveSegImage(self):
 
 	HBlayoutSave = QHBoxLayout()
-	btnSave = QPushButton("Save Seg." + u"    \u2318" + "S")
+	btnSave = QPushButton("Save Class Seg." + u" \u2318" + "S")
 	btnSave.setMinimumWidth(BTN_MIN_WIDTH)
 	btnSave.setMaximumWidth(BTN_MAX_WIDTH)
-	btnSave.clicked.connect(self.saveImage)	
+	btnSave.clicked.connect(self.saveClsSegImage)	
 
-	self.savePath = QLineEdit(self)
-	self.savePath.setText('')
-	self.savePath.returnPressed.connect(self.saveImage)
+	self.saveClsSegPath = QLineEdit(self)
+	self.saveClsSegPath.setText('')
+	self.saveClsSegPath.returnPressed.connect(self.saveClsSegImage)
 
 	HBlayoutSave.setAlignment(Qt.AlignCenter)
 	HBlayoutSave.addWidget(btnSave)
-	HBlayoutSave.addWidget(self.savePath)	
+	HBlayoutSave.addWidget(self.saveClsSegPath)	
 	return HBlayoutSave
+
+
+def setLayoutSaveObjImage(self):
+
+	HBlayoutSave = QHBoxLayout()
+	btnSave = QPushButton("Save Obj. Seg." + u" \u2318" + "S")
+	btnSave.setMinimumWidth(BTN_MIN_WIDTH)
+	btnSave.setMaximumWidth(BTN_MAX_WIDTH)
+	btnSave.clicked.connect(self.saveObjSegImage)	
+
+	self.saveObjSegPath = QLineEdit(self)
+	self.saveObjSegPath.setText('')
+	self.saveObjSegPath.returnPressed.connect(self.saveObjSegImage)
+
+	HBlayoutSave.setAlignment(Qt.AlignCenter)
+	HBlayoutSave.addWidget(btnSave)
+	HBlayoutSave.addWidget(self.saveObjSegPath)	
+	return HBlayoutSave
+
+
+
+
+
 
 def setLayoutImageInfo(self):
 	VBlayoutStatus = QVBoxLayout()
@@ -345,84 +406,40 @@ def setLayoutImageInfo(self):
 
 
 
-def setLayoutFileView(self):
+def setLayoutFileViewNew(self):
 	VBlayoutFileView = QVBoxLayout()
 	VBlayoutFileView.setAlignment(Qt.AlignTop)
 
 	# Label & Path
-
-	HBlayoutFSInfo = QHBoxLayout()
+	HVlayoutFSInfo = QVBoxLayout()
 	fsInfo = QLabel()
 	fsInfo.setAlignment(Qt.AlignLeft)
 	fsInfo.setText('Image Files')
 	fsInfo.setScaledContents(True)
 
 	self.fsPath = QLineEdit(self)
-	self.fsPath.setText(self.PWD+'/image')
+	self.fsPath.setText(os.path.join(self.PWD,'image'))
 	self.fsPath.returnPressed.connect(self.loadFileSystem)		
-	HBlayoutFSInfo.addWidget(fsInfo)
-	HBlayoutFSInfo.addWidget(self.fsPath)
+	HVlayoutFSInfo.addWidget(fsInfo)
+	HVlayoutFSInfo.addWidget(self.fsPath)
 
 	# File System 
-	self.treeView = QTreeView()
-	#self.treeView.setSortingEnabled(True)
-	self.fileview = QFileSystemModel(self.treeView)
+	self.fileSysTreeView = QTreeView()
+	#self.fileSysTreeView.setSortingEnabled(True)
+	self.fileSysview = QFileSystemModel(self.fileSysTreeView)
 
-	self.fileview.setFilter(QDir.NoDotAndDotDot | QDir.Files)
-	self.fileview.setNameFilters(self.extfilters)
-	self.fileview.setRootPath(self.PWD+'/image')
-	self.fileview.setReadOnly(True)
+	self.fileSysview.setFilter(QDir.NoDotAndDotDot | QDir.Files)
+	self.fileSysview.setNameFilters(self.extfilters)
+	self.fileSysview.setRootPath(os.path.join(self.PWD,'image'))
+	self.fileSysview.setReadOnly(True)
 
-	self.treeView.setModel(self.fileview)
-	self.treeView.doubleClicked.connect(self.loadFileSystemItem)
+	self.fileSysTreeView.setModel(self.fileSysview)
+	self.fileSysTreeView.doubleClicked.connect(self.loadFileSystemItem)
 
-	fileviewdir = QDir(self.PWD+'/image')
-	root = self.fileview.setRootPath(fileviewdir.path())
+	fileviewdir = QDir(os.path.join(self.PWD,'image'))
+	root = self.fileSysview.setRootPath(fileviewdir.path())
 	#files = fileviewdir.entryList()
-	self.treeView.setRootIndex(root)
-
-	VBlayoutFileView.addLayout(HBlayoutFSInfo)
-	VBlayoutFileView.addWidget(self.treeView)
-
-	return	VBlayoutFileView
-
-
-
-def setLayoutFileViewLabelView(self):
-	VBlayoutFileView = QVBoxLayout()
-	VBlayoutFileView.setAlignment(Qt.AlignTop)
-
-	# Label & Path
-
-	HBlayoutFSInfo = QHBoxLayout()
-	fsInfo = QLabel()
-	fsInfo.setAlignment(Qt.AlignLeft)
-	fsInfo.setText('Image Files')
-	fsInfo.setScaledContents(True)
-
-	self.fsPath = QLineEdit(self)
-	self.fsPath.setText(self.PWD+'/image')
-	self.fsPath.returnPressed.connect(self.loadFileSystem)		
-	HBlayoutFSInfo.addWidget(fsInfo)
-	HBlayoutFSInfo.addWidget(self.fsPath)
-
-	# File System 
-	self.treeView = QTreeView()
-	#self.treeView.setSortingEnabled(True)
-	self.fileview = QFileSystemModel(self.treeView)
-
-	self.fileview.setFilter(QDir.NoDotAndDotDot | QDir.Files)
-	self.fileview.setNameFilters(self.extfilters)
-	self.fileview.setRootPath(self.PWD+'/image')
-	self.fileview.setReadOnly(True)
-
-	self.treeView.setModel(self.fileview)
-	self.treeView.doubleClicked.connect(self.loadFileSystemItem)
-
-	fileviewdir = QDir(self.PWD+'/image')
-	root = self.fileview.setRootPath(fileviewdir.path())
-	#files = fileviewdir.entryList()
-	self.treeView.setRootIndex(root)
+	self.fileSysTreeView.setRootIndex(root)
 
 
 
@@ -437,19 +454,53 @@ def setLayoutFileViewLabelView(self):
 
 	self.QListClassLabel = QListWidget()
 
-	VBlayoutLabelSelect.addWidget(QLabelSelect, 1)
+	VBlayoutLabelSelect.addWidget(QLabelSelect, 0.1)
 	VBlayoutLabelSelect.addWidget(self.QListClassLabel,9)
 
 	HBlayoutLabelSelect.addWidget(QLabel(), 1)
 	HBlayoutLabelSelect.addLayout(VBlayoutLabelSelect, 9)
 
 
-	VBlayoutFileView.addLayout(HBlayoutFSInfo, 1)
-	VBlayoutFileView.addWidget(self.treeView, 6)
-	VBlayoutFileView.addLayout(HBlayoutLabelSelect,2)
+	VBlayoutFileView.addLayout(HVlayoutFSInfo, 0.1)
+	VBlayoutFileView.addWidget(self.fileSysTreeView, 6)
+	VBlayoutFileView.addLayout(HBlayoutLabelSelect,3)
 	
 
 	return	VBlayoutFileView
+
+
+def setLayoutObjectClassView(self):
+	QLabelObjClsHandler = QLabel()
+	QLabelObjClsHandler.setAlignment(Qt.AlignBottom)
+	QLabelObjClsHandler.setAlignment(Qt.AlignCenter)
+	QLabelObjClsHandler.setText('Object / Class')
+
+	self.SBObjClsLabeler = QSpinBox()
+	self.SBObjClsLabeler.setMinimum(0)
+	self.SBObjClsLabeler.setMaximum(255)
+	self.SBObjClsLabeler.valueChanged.connect(self.selectObjClsLbl)
+
+	QLabelKillObjCls = QLabel()
+	QLabelKillObjCls.setAlignment(Qt.AlignCenter)
+	QLabelKillObjCls.setText('Press \'K\' to remove Object')
+
+
+	HBlayout = QHBoxLayout()
+	HBlayout.setAlignment(Qt.AlignLeft)
+	HBlayout.addWidget(QLabelObjClsHandler)
+	HBlayout.addWidget(self.SBObjClsLabeler)
+
+
+	self.clsObjHandler = clsObjTreeHandler(self)
+
+
+	VBlayoutObjClsHandler	 	= QVBoxLayout()
+	VBlayoutObjClsHandler.addLayout(HBlayout, 0.5)
+	#VBlayoutObjClsHandler.addWidget(self.QTreeObjectClassHandler, 9.5)
+	VBlayoutObjClsHandler.addWidget(self.clsObjHandler, 9.5)
+	VBlayoutObjClsHandler.addWidget(QLabelKillObjCls, 0.1)
+
+	return VBlayoutObjClsHandler
 
 
 

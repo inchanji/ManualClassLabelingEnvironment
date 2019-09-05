@@ -3,6 +3,7 @@ from PIL import ImageQt, Image
 import os
 import ntpath
 import matplotlib.path
+import matplotlib.cm
 import numpy as np 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import * 
@@ -14,6 +15,7 @@ RGB_WHITE = (255 << 16) + (255 << 8) + 255
 
 BndryLabelName 	= 'BOUNDARY'
 BndryLabelValue = 255
+ALPHA_MASK 		= 0.3
 
 def RGBAtoInt(R,G,B,alpha = 255):
 	return alpha << 24 | B | G << 8 | R << 16
@@ -117,10 +119,11 @@ def loadImage(self):
 
 	filename 		= ntpath.basename(self.imagePath.text())
 	pathdir 		= self.imagePath.text().split(filename)[0]
-	if not os.path.isdir(pathdir + 'segmentation/'):
-		os.mkdir(pathdir + 'segmentation/')
+	if not os.path.isdir(os.path.join(pathdir,'segmentation')):
+		os.mkdir(os.path.join(pathdir,'segmentation'))
 
-	pathsave 		= pathdir + 'segmentation/' + filename.split('.')[0] + '_seg.bmp'
+	pathClsSegsave 		= os.path.join(pathdir,'segmentation', filename.split('.')[0] + '_class_seg.bmp')
+	pathObjSegsave 		= os.path.join(pathdir,'segmentation', filename.split('.')[0] + '_object_seg.bmp')
 
 	img 	 = Image.open(self.imagePath.text())
 	Nchannel = len(img.split())
@@ -138,18 +141,21 @@ def loadImage(self):
 	self.imgWidth 	= self.qImage0.width()
 	self.imgHeight 	= self.qImage0.height()
 
-	self.savePath.setText(pathsave)
+	self.saveClsSegPath.setText(pathClsSegsave)
+	self.saveObjSegPath.setText(pathObjSegsave)
 
 	self.imgviewer.setPhoto(pixmap)
 
 	qsegmap = QPixmap(self.imgWidth, self.imgHeight)
 	qsegmap.fill(Qt.black)
-	self.segviewer.setPhoto(qsegmap)
+	self.classSegViewer.setPhoto(qsegmap)
+	self.objectSegViewer.setPhoto(qsegmap)
+	self.clsObjHandler.reset()
 
 
-	if os.path.isfile(pathsave):
-		if askQuestion(self, 'Segmentation '+ pathsave +' found. Do you want to load it?'):
-			self.loadRetrieveClassLable(pathsave)
+	#if os.path.isfile(pathsave):
+	#	if askQuestion(self, 'Segmentation '+ pathsave +' found. Do you want to load it?'):
+	#		self.loadRetrieveClassLable(pathsave)
 
 
 
@@ -163,4 +169,20 @@ def askQuestion(self, message):
 		return True
 	else:
 		return False	
+
+
+
+
+
+def RGBColorTable(i, cmap='prism'):
+	if i == 0: return 0
+
+	r,g,b,a = matplotlib.cm.get_cmap(cmap)(i % 255)
+	R = int(r * 255)
+	G = int(g * 255)
+	B = int(b * 255)
+
+	return B | G << 8 | R << 16
+
+
 

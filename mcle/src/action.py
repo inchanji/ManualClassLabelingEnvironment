@@ -9,7 +9,8 @@ def createActions(self):
 	openShortcut.activated.connect(self.loadImage) 
 	
 	saveShortcut 		= QShortcut(QKeySequence("Ctrl+s"), self)
-	saveShortcut.activated.connect(self.saveImage) 
+	saveShortcut.activated.connect(self.saveClsSegImage) 
+	saveShortcut.activated.connect(self.saveObjSegImage) 
 
 	zoominShortcut  	= QShortcut(QKeySequence("Ctrl+="), self)
 	zoominShortcut.activated.connect(self.imgviewer.zoomIn) 
@@ -21,19 +22,19 @@ def createActions(self):
 	fitinShortcut.activated.connect(self.imgviewer.fitInView) 		
 
 	cursorShortcut  	= QShortcut(QKeySequence("i"), self)
-	cursorShortcut.activated.connect(self.imgviewer.switchInspectionMode) 	
+	cursorShortcut.activated.connect(self.switchInspectionMode) 	
 
 	markPtShortcut  	= QShortcut(QKeySequence("m"), self)
-	markPtShortcut.activated.connect(self.imgviewer.switchMarkPointMode) 
+	markPtShortcut.activated.connect(self.switchMarkPointMode) 
 
 	fillMarkShortcut  	= QShortcut(QKeySequence("f"), self)
-	fillMarkShortcut.activated.connect(self.imgviewer.fillInMarkPoint) 
+	fillMarkShortcut.activated.connect(self.fillInMarkPoint) 
 
 	drawLineMarkShortcut  	= QShortcut(QKeySequence("l"), self)
-	drawLineMarkShortcut.activated.connect(self.imgviewer.drawLinebtwMarkPoint) 
+	drawLineMarkShortcut.activated.connect(self.drawLinebtwMarkPoint) 
 
 	fillLabelOnePixelShortcut  	= QShortcut(QKeySequence("p"), self)
-	fillLabelOnePixelShortcut.activated.connect(self.imgviewer.switchFillPixelMode) 
+	fillLabelOnePixelShortcut.activated.connect(self.switchFillPixelMode) 
 
 	drawBoundaryShortcut  	= QShortcut(QKeySequence("b"), self)
 	drawBoundaryShortcut.activated.connect(self.setSegBoundary) 	
@@ -49,10 +50,10 @@ def createActions(self):
 	#resetShorcut.activated.connect(self.resetSegImage)
 
 
-	decreaseClassLabelIdxShorcut	= QShortcut(QKeySequence(","), self)
+	decreaseClassLabelIdxShorcut	= QShortcut(QKeySequence("-"), self)
 	decreaseClassLabelIdxShorcut.activated.connect(self.decreaseClassLabelIdx)
 
-	increaseClassLabelIdxShorcut  = QShortcut(QKeySequence("."), self)
+	increaseClassLabelIdxShorcut  = QShortcut(QKeySequence("="), self)
 	increaseClassLabelIdxShorcut.activated.connect(self.increaseClassLabelIdx)
 
 	closeShortcut  	= QShortcut(QKeySequence("Ctrl+w"), self)
