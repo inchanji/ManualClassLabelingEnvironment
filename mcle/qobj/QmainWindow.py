@@ -7,11 +7,16 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import * 
 from PyQt5.QtGui import *
 from PyQt5.QtPrintSupport import *
-from qobj.qmainViewers import * 
+from qobj.qImgViewer import * 
+from qobj.qClassSegViewer import *
+from qobj.qObjectSegViewer import *
 from src.config import configLayout
 from src.action import createActions
-from src.handleLabel import loadClassLabel
+from src.labelhandler import loadClassLabel
 from src.image import loadImage, BndryLabelValue
+from src.clsobjhandler import *
+
+
 
 def getIcon(path):
 	app_icon = QIcon()
@@ -20,7 +25,6 @@ def getIcon(path):
 	app_icon.addFile(path + '32x32.png',   QSize(32,32))
 	app_icon.addFile(path + '48x48.png',   QSize(48,48))
 	app_icon.addFile(path + '256x256.png', QSize(256,256))
-
 	return app_icon
 
 
@@ -35,13 +39,14 @@ class QMainWindow(QWidget):
 
 		# main layout 			
 		self.imgviewer			= PhotoViewer(self)
-		self.segviewer 			= SegViewer(self)
+		self.classSegViewer 	= ClassSegViewer(self)
+		self.objectSegViewer 	= ObjectSegViewer(self)
 
 		self.configLayout()
 		self.createActions()
 		self.loadClassLabel()
 
-		self.setGeometry(0, 0, 1200, 600)
+		self.setGeometry(100, 100, 1048, 640)
 		self.setMinimumSize(1000, 600)
 		self.setMaximumSize(2000, 1500)
 		self.setWindowTitle('Manual Class Labeling Environment')
@@ -49,12 +54,18 @@ class QMainWindow(QWidget):
 		self.imgviewer.emitMouseOnPhoto.connect(self.updateImageInfo)
 		self.imgviewer.emitClassLabelPos.connect(self.setClassLabelPos)
 		self.imgviewer.emitClassLabelIdx.connect(self.setClassLabelIdx)
+		self.clsObjHandler.emitClassObjectIdx.connect(self.getClassObjectIdx)
+		self.clsObjHandler.emitClassObjectPos.connect(self.getClassObjectPos)
+		self.clsObjHandler.emitFillClassObject.connect(self.updateClassObject)
+		self.clsObjHandler.emitKillClassObject.connect(self.removeClassObjectPos)
+
 
 	def initialize(self):
 		initialize(self)
 
 	def configLayout(self):
 		configLayout(self)
+
 
 	def createActions(self):
 		createActions(self)
@@ -74,21 +85,29 @@ class QMainWindow(QWidget):
 	def switchFillPixelMode(self):
 		self.imgviewer.switchFillPixelMode()
 
+	def drawLinebtwMarkPoint(self):
+		self.imgviewer.drawLinebtwMarkPoint()
+
 	def resetImage(self):
 		if self.qImage0 is not None:
 			self.imgviewer.resetImage()
-			self.resetSegImage()
+			self.resetSegImages()
+			self.clsObjHandler.reset()
 
 	def setClassLabelLineWidth(self, val = None):
 		self.imgviewer.setClassLabelLineWidth(val)
 
 	def setSegBndryThickness(self, val = None):
-		self.segviewer.setSegBndryThickness(val)		
+		self.classSegViewer.setSegBndryThickness(val)		
 
 	def setSegBoundary(self):
 		if self.imgviewer.askQuestion('Are you sure to proceed ?'):
-			labelpos = self.imgviewer.ClassLabelPixPos
-			self.imgviewer.setSegBndry(self.segviewer.setSegBndry(labelpos))
+			self.setClassLabelQList(self.NClassLabel - 1)
+			idx 	 = self.classLabelIdxSelected
+			labelpos = self.clsObjHandler.getClassLabelPixPos(self.NClassLabel)
+			bndrypos = self.classSegViewer.setSegBndry(labelpos)
+			self.imgviewer.setSegBndry(bndrypos)
+			self.setClassLabelQList(idx)
 
 	def delOneMarkPoint(self):
 		self.imgviewer.delOneMarkPoint()
@@ -96,9 +115,12 @@ class QMainWindow(QWidget):
 	def fillInMarkPoint(self):
 		self.imgviewer.fillInMarkPoint()
 
+	def saveClsSegImage(self):
+		self.classSegViewer.saveSegMap(self.saveClsSegPath.text())
 
-	def saveImage(self):
-		self.segviewer.saveSegMap(self.savePath.text())
+	def saveObjSegImage(self):
+		self.objectSegViewer.saveSegMap(self.saveObjSegPath.text())
+
 
 	def updateImageInfo(self, pos = None):
 		if pos is not None:
@@ -107,26 +129,37 @@ class QMainWindow(QWidget):
 			txt += '[Mouse posistion] ({:4d}, {:4d})'.format(pos.x(), pos.y()) + '\n'
 			self.viewInfo.setText(txt) 
 
-
 	def selectClassLbl(self, idx = None):
 		self.QInputClassLabel.emit(idx)
 
+	def selectObjClsLbl(self, idx = None):
+		self.clsObjHandler.clsObjIdxSelected = idx
 
 	def setClassLabelIdx(self, idx = None):
 		if idx is not None:
-			self.classLabelIdx = idx
+			self.classLabelIdxSelected = idx
 
 	def setClassLabelPos(self, pos = None):
-		if (pos is not None) and (self.classLabelIdx is not None):
-			self.segviewer.setClassLabel(pos, self.classLabelIdx)
+		
+		if (pos is not None) and (self.classLabelIdxSelected is not None):
+			self.classSegViewer.setClassLabel(pos, self.classLabelIdxSelected)
+			self.classLabelQPosSelected = pos.copy()
 		else:
 			print('either pos or classLabelIdx is None')
 
-	def resetSegImage(self):
+		if (pos is not None) and (self.clsObjHandler.clsObjIdxSelected is not None):
+			if self.classLabelIdxSelected < self.Nclasslbl-1:
+				self.objectSegViewer.fillClassObject(self.clsObjHandler.clsObjIdxSelected, pos)
+			else:
+				self.objectSegViewer.setSegBndry(pos)
+
+
+	def resetSegImages(self):
 		qsegmap = QPixmap(self.imgWidth, self.imgHeight)
 		qsegmap.fill(Qt.black)
-		self.segviewer.setPhoto(qsegmap)
-		print('resetSegImage')		
+		self.classSegViewer.setPhoto(qsegmap)
+		self.objectSegViewer.setPhoto(qsegmap)
+		print('reset Seg Images')		
 
 
 	def loadFileSystem(self):
@@ -145,50 +178,35 @@ class QMainWindow(QWidget):
 
 	def setClassLabelQList(self, qmodelidx):
 		#print(qmodelidx.row())
-		self.classLabelIdx = qmodelidx.row()
-		self.QLEselectLbl.setValue(self.classLabelIdx)
+		if type(qmodelidx) == int:
+			self.classLabelIdxSelected = qmodelidx
+		else:
+			self.classLabelIdxSelected = qmodelidx.row()
+		self.QLEselectLbl.setValue(self.classLabelIdxSelected)
 		self.QLEselectLbl.valueChanged.connect(self.selectClassLbl)		
 		self.QInputClassLabel.emit(self.QLEselectLbl.value())	
 
 
 	def increaseClassLabelIdx(self):
-		if self.classLabelIdx is None:
-			self.classLabelIdx = 0
-		elif self.classLabelIdx < self.NClassLabel - 1:
-			self.classLabelIdx += 1
+		if self.classLabelIdxSelected is None:
+			self.classLabelIdxSelected = 0
+		elif self.classLabelIdxSelected < self.NClassLabel - 1:
+			self.classLabelIdxSelected += 1
 
-		self.QLEselectLbl.setValue(self.classLabelIdx)
+		self.QLEselectLbl.setValue(self.classLabelIdxSelected)
 		self.QLEselectLbl.valueChanged.connect(self.selectClassLbl)		
 		self.QInputClassLabel.emit(self.QLEselectLbl.value())	
 
 	def decreaseClassLabelIdx(self):
-		if self.classLabelIdx is None:
-			self.classLabelIdx = 0
-		elif self.classLabelIdx > 0:
-			self.classLabelIdx -= 1
+		if self.classLabelIdxSelected is None:
+			self.classLabelIdxSelected = 0
+		elif self.classLabelIdxSelected > 0:
+			self.classLabelIdxSelected -= 1
 
-		self.QLEselectLbl.setValue(self.classLabelIdx)
+		self.QLEselectLbl.setValue(self.classLabelIdxSelected)
 		self.QLEselectLbl.valueChanged.connect(self.selectClassLbl)		
 		self.QInputClassLabel.emit(self.QLEselectLbl.value())
 
-
-	def loadRetrieveClassLable(self, path):
-		fn = lambda x: self.Nclasslbl-1 if x == BndryLabelValue else x
-		print('loadRetrieveClassLable:', path)
-		segload 	= np.array(Image.open(path))
-		nrow, ncol 	= np.shape(segload)
-		labels 		= []
-		pos 		= []
-		for i in range(nrow):
-			for j in range(ncol):
-				val = segload[i,j]
-				if  val != 0:
-					labels.append(fn(val))
-					pos.append([i,j])
-					self.imgviewer.ClassLabelPixPos[fn(val)].append([i,j])
-
-		self.imgviewer.loadSegClassLabel(labels, pos)
-		self.segviewer.loadSegClassLabel(labels, pos)
 
 	def Cancel(self):
 		self.close()
@@ -204,6 +222,48 @@ class QMainWindow(QWidget):
 		else:
 			event.ignore()
 
+	def addObjClass(self, name = None):
+		validLabel = True
+		if name == None: # Filled Area with Class Label
+			try: 
+				labelstr 	= self.listClassLabel[self.classLabelIdxSelected] + '_' + str(self.clsObjHandler.NclsObj)
+				if self.classLabelIdxSelected == 0:  # ignore background when adding item to class object list
+					validLabel = False
+			except:
+				validLabel 	= False
+		else:
+			labelstr = name
+			
+		if not(validLabel): return
+
+		qpos 	 = self.classLabelQPosSelected
+		self.clsObjHandler.addClsObj(self.classLabelIdxSelected, labelstr, qpos)
+
+	def addBndryClass(self, name = None):
+		print('addBndryClass')
+		qpos 	 = self.classLabelQPosSelected
+		self.clsObjHandler.addClsObj(self.classLabelIdxSelected, name, qpos)
+
+
+
+	def getClassObjectIdx(self, idx = None):
+		self.objectSegViewer.clsObjIdx = idx
+
+	def getClassObjectPos(self, pos = None):
+		self.objectSegViewer.clsObjPos = pos
+
+	def updateClassObject(self, enable = None):
+		if enable:
+			idx = self.objectSegViewer.clsObjIdx
+			pos = self.objectSegViewer.clsObjPos
+			self.objectSegViewer.fillClassObject(idx, pos)
+
+	def removeClassObjectPos(self, qpos = None):
+		if qpos != None:
+			self.imgviewer.removeClassLabel(qpos)
+			self.classSegViewer.removeClassLabel(qpos)
+			self.objectSegViewer.removeClassLabel(qpos)
+			#self.objectSegViewer.fillClassObject(idx, pos)
 
 
 def initialize(self):
@@ -211,9 +271,10 @@ def initialize(self):
 	self.readytoMark 		= False
 	self.qImage0 			= None
 	self.PWD 				= os.getcwd()
-	self.imagePath0 		= self.PWD + '/image/rock-austin.jpg'
-	self.classLabelPath0 	= self.PWD + '/CLASSLABEL'
+	self.imagePath0 		= os.path.join(self.PWD, 'image', 'rock-austin.jpg')
+	self.classLabelPath0 	= os.path.join(self.PWD , 'CLASSLABEL')
 	self.featureBase 		= '*** Class Segmentation Maker (by Inchan Ji)***\n' +  '[No.] [Class label] [RGB 0-255]\n'
 	self.Nclasslbl 			= None
 	self.classlbl 			= ''
 	self.extfilters 		= iter(('*.jpeg','*.jpg','*.png','*.bmp'))
+
