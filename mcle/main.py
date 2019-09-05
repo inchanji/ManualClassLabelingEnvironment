@@ -4,10 +4,9 @@ from PyQt5.QtWidgets import QApplication
 from qobj.QmainWindow import *
 import os
 
-
 def main():
 	app = QApplication(sys.argv)
-	app.setWindowIcon(getIcon(os.getcwd()+'/res/icon/'))
+	app.setWindowIcon(getIcon(os.path.join(os.getcwd(),'res','icon')))
 	imageEditor = QMainWindow()
 	imageEditor.show()
 
