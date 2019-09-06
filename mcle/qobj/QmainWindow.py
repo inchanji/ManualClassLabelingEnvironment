@@ -16,8 +16,6 @@ from src.labelhandler import loadClassLabel
 from src.image import loadImage, BndryLabelValue
 from src.clsobjhandler import *
 
-
-
 def getIcon(path):
 	app_icon = QIcon()
 	app_icon.addFile(os.path.join(path, '16x16.png'),   QSize(16,16))
@@ -26,7 +24,6 @@ def getIcon(path):
 	app_icon.addFile(os.path.join(path, '48x48.png'),   QSize(48,48))
 	app_icon.addFile(os.path.join(path, '256x256.png'), QSize(256,256))
 	return app_icon
-
 
 class QMainWindow(QWidget):
 	QInputClassLabel = pyqtSignal(int)
@@ -59,13 +56,11 @@ class QMainWindow(QWidget):
 		self.clsObjHandler.emitFillClassObject.connect(self.updateClassObject)
 		self.clsObjHandler.emitKillClassObject.connect(self.removeClassObjectPos)
 
-
 	def initialize(self):
 		initialize(self)
 
 	def configLayout(self):
 		configLayout(self)
-
 
 	def createActions(self):
 		createActions(self)
@@ -121,7 +116,6 @@ class QMainWindow(QWidget):
 	def saveObjSegImage(self):
 		self.objectSegViewer.saveSegMap(self.saveObjSegPath.text())
 
-
 	def updateImageInfo(self, pos = None):
 		if pos is not None:
 			txt  = '[Image name] {:s}'.format(ntpath.basename(self.imagePath.text())) + '\n'
@@ -140,7 +134,6 @@ class QMainWindow(QWidget):
 			self.classLabelIdxSelected = idx
 
 	def setClassLabelPos(self, pos = None):
-		
 		if (pos is not None) and (self.classLabelIdxSelected is not None):
 			self.classSegViewer.setClassLabel(pos, self.classLabelIdxSelected)
 			self.classLabelQPosSelected = pos.copy()
@@ -153,7 +146,6 @@ class QMainWindow(QWidget):
 			else:
 				self.objectSegViewer.setSegBndry(pos)
 
-
 	def resetSegImages(self):
 		qsegmap = QPixmap(self.imgWidth, self.imgHeight)
 		qsegmap.fill(Qt.black)
@@ -161,20 +153,16 @@ class QMainWindow(QWidget):
 		self.objectSegViewer.setPhoto(qsegmap)
 		print('reset Seg Images')		
 
-
 	def loadFileSystem(self):
-		#self.fileview.setRootPath(self.fsPath.text())
 		fileviewdir = QDir(self.fsPath.text())
-		root = self.fileview.setRootPath(fileviewdir.path())
-		self.treeView.setRootIndex(root)
-		#self.fileview.setFilter(QDir.NoDotAndDotDot | QDir.Files)
+		root = self.fileSysview.setRootPath(fileviewdir.path())
+		self.fileSysTreeView.setRootIndex(root)
 
 	def loadFileSystemItem(self, index):
 		path = self.sender().model().filePath(index)
 		self.imagePath.setText(path)
 		self.loadImage()
 		#print('loadFileSystemItem:', path) 
-
 
 	def setClassLabelQList(self, qmodelidx):
 		#print(qmodelidx.row())
@@ -244,8 +232,6 @@ class QMainWindow(QWidget):
 		qpos 	 = self.classLabelQPosSelected
 		self.clsObjHandler.addClsObj(self.classLabelIdxSelected, name, qpos)
 
-
-
 	def getClassObjectIdx(self, idx = None):
 		self.objectSegViewer.clsObjIdx = idx
 
@@ -264,7 +250,6 @@ class QMainWindow(QWidget):
 			self.classSegViewer.removeClassLabel(qpos)
 			self.objectSegViewer.removeClassLabel(qpos)
 			#self.objectSegViewer.fillClassObject(idx, pos)
-
 
 def initialize(self):
 	self.Nchannel 			= 3

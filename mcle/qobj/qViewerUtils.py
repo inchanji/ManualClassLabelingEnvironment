@@ -160,6 +160,7 @@ def getBndryPosNew(segmap, thickness, valbndry, classlabelpos):
 			continue # skip Bndry class label
 
 		for i, j in classlabelpos[n]: # Qimage Coord: row & col are swapped
+			if (i < 0) or (i >= nrow) or (j < 0) or (j >= ncol): continue
 			val 	= segmap[i,j]
 			if val == valbndry:	
 				continue			
@@ -174,6 +175,7 @@ def getBndryPosNew(segmap, thickness, valbndry, classlabelpos):
 			
 			for k, v in enumerate(labelsneighbor):
 				ii, jj 	= indneighbor[k][0], indneighbor[k][1]
+				if (ii < 0) or (ii >= nrow) or (jj < 0) or (jj >= ncol): continue
 
 				if v == 0:
 					#print('>>Marking Bndry.     seg val:' , v, ' at (x,y) =', jj,ii)

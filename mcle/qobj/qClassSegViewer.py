@@ -8,7 +8,6 @@ from PyQt5.QtPrintSupport import *
 from src.image import rgbColorSchemeLabel, ALPHA_MASK
 from qobj.qViewerUtils import * 
 
-
 class ClassSegViewer(QGraphicsView):
 	def __init__(self, parent):
 		super(ClassSegViewer, self).__init__(parent)
@@ -59,7 +58,6 @@ class ClassSegViewer(QGraphicsView):
 			self._photo.setPixmap(QPixmap())
 			self.segmap = None
 		self.fitInView()		
-
 
 	def wheelEvent(self, event):
 		if self.hasPhoto():
@@ -116,7 +114,6 @@ class ClassSegViewer(QGraphicsView):
 			qimg.setPixel(i,j, 0xff000000)
 			self.segmap[j,i] = 0
 		self._photo.setPixmap(QPixmap(qimg))		
-
 
 	def setSegBndryThickness(self, val):
 		self.bndryThickness = val

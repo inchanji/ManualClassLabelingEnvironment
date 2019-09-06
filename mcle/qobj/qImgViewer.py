@@ -7,9 +7,7 @@ from PyQt5.QtPrintSupport import *
 from src.image import RGBAtoInt, IntToRGBA, ALPHA_MASK
 from qobj.qViewerUtils import *
 
-
 MIN_DIST2_OVERLAP = 3**2
-
 
 class PhotoViewer(QGraphicsView):
 	emitMouseOnPhoto 	= pyqtSignal(QPoint)
@@ -121,7 +119,6 @@ class PhotoViewer(QGraphicsView):
 			self._zoom = 0
 			self.scale(factor, factor)
 			
-
 	def switchInspectionMode(self):
 		self.inspectionMode = not(self.inspectionMode)
 		if self.hasPhoto() and not(self.inspectionMode):
@@ -190,15 +187,12 @@ class PhotoViewer(QGraphicsView):
 		print('markPointMode: {}'.format(self.markPtsMode))
 		print('fillPixMode: {}'.format(self.fillPixMode))
 		
-
-
 	def toggleDragMode(self):
 		print('toggleDragMode')
 		if self.dragMode() == QGraphicsView.ScrollHandDrag:
 			self.setDragMode(QGraphicsView.NoDrag)
 		elif not self._photo.pixmap().isNull():
 			self.setDragMode(QGraphicsView.ScrollHandDrag)
-
 
 	def mouseMoveEvent(self, event):
 		#print('mouseMoveEvent')
@@ -208,10 +202,8 @@ class PhotoViewer(QGraphicsView):
 		elif self._photo.isUnderMouse() and self.inspectionMode and self.markPtsMode:
 			point = self.mapToScene(event.pos())
 			self.emitMouseOnPhoto.emit(QPoint(point.x(), point.y()))
-			self.tempLine(point)
-			
+			self.tempLine(point)			
 		super(PhotoViewer, self).mouseMoveEvent(event)
-
 
 	def mousePressEvent(self, event):
 		if self.hasPhoto() and self.inspectionMode and not(self.markPtsMode) and not(self.fillPixMode):
@@ -224,9 +216,7 @@ class PhotoViewer(QGraphicsView):
 			self.fillLabelOnePixel(point)
 		else: 
 			pass
-
 		super(PhotoViewer, self).mousePressEvent(event)
-
 
 	def update_image(self):
 		print('update_image')
@@ -243,7 +233,6 @@ class PhotoViewer(QGraphicsView):
 							self.parent.imgWidth, 
 							self.parent.imgHeight, 
 							QImage.Format_RGB32))
-
 		self._photo.setPixmap(qpixmap)
 
 
@@ -254,7 +243,6 @@ class PhotoViewer(QGraphicsView):
 			self._scene.removeItem(self._tempLine)
 			self._tempLine.setLine(QLineF(lastpos, curpos))
 			self._scene.addItem(self._tempLine)
-
 
 	def addMarkPoint(self, point):
 		print('addMarkPoint')
@@ -289,11 +277,8 @@ class PhotoViewer(QGraphicsView):
 		self._lines.append(_line)
 
 
-
-
 	def delOneMarkPoint(self):
 		print('delOneMarkPoint')
-
 		if len(self._lines) > 0:
 			self._scene.removeItem(self._lines[-1])
 			del self._lines[-1]
@@ -338,8 +323,6 @@ class PhotoViewer(QGraphicsView):
 		if (lbl is not None) and (ptsInside is not None):
 			name = 'Pt. [{:d},{:d}]'.format(pts[0][0],pts[0][1])
 			self.parent.addObjClass(name)
-
-
 		
 	def loadSegClassLabel(self, label, pos):
 		if (len(label) == 0) or (len(pos) == 0): return
