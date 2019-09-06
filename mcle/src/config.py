@@ -352,7 +352,6 @@ def setLayoutOpenImage(self):
 
 
 def setLayoutSaveSegImage(self):
-
 	HBlayoutSave = QHBoxLayout()
 	btnSave = QPushButton("Save Class Seg." + u" \u2318" + "S")
 	btnSave.setMinimumWidth(BTN_MIN_WIDTH)
@@ -370,7 +369,6 @@ def setLayoutSaveSegImage(self):
 
 
 def setLayoutSaveObjImage(self):
-
 	HBlayoutSave = QHBoxLayout()
 	btnSave = QPushButton("Save Obj. Seg." + u" \u2318" + "S")
 	btnSave.setMinimumWidth(BTN_MIN_WIDTH)
@@ -385,11 +383,6 @@ def setLayoutSaveObjImage(self):
 	HBlayoutSave.addWidget(btnSave)
 	HBlayoutSave.addWidget(self.saveObjSegPath)	
 	return HBlayoutSave
-
-
-
-
-
 
 def setLayoutImageInfo(self):
 	VBlayoutStatus = QVBoxLayout()
@@ -427,9 +420,9 @@ def setLayoutFileViewNew(self):
 	self.fileSysTreeView = QTreeView()
 	#self.fileSysTreeView.setSortingEnabled(True)
 	self.fileSysview = QFileSystemModel(self.fileSysTreeView)
-
 	self.fileSysview.setFilter(QDir.NoDotAndDotDot | QDir.Files)
 	self.fileSysview.setNameFilters(self.extfilters)
+	self.fileSysview.setNameFilterDisables(False)
 	self.fileSysview.setRootPath(os.path.join(self.PWD,'image'))
 	self.fileSysview.setReadOnly(True)
 
@@ -440,8 +433,6 @@ def setLayoutFileViewNew(self):
 	root = self.fileSysview.setRootPath(fileviewdir.path())
 	#files = fileviewdir.entryList()
 	self.fileSysTreeView.setRootIndex(root)
-
-
 
 	HBlayoutLabelSelect = QHBoxLayout()
 	VBlayoutLabelSelect = QVBoxLayout()
@@ -464,8 +455,6 @@ def setLayoutFileViewNew(self):
 	VBlayoutFileView.addLayout(HVlayoutFSInfo, 0.1)
 	VBlayoutFileView.addWidget(self.fileSysTreeView, 6)
 	VBlayoutFileView.addLayout(HBlayoutLabelSelect,3)
-	
-
 	return	VBlayoutFileView
 
 
@@ -484,7 +473,6 @@ def setLayoutObjectClassView(self):
 	QLabelKillObjCls.setAlignment(Qt.AlignCenter)
 	QLabelKillObjCls.setText('Press \'K\' to remove Object')
 
-
 	HBlayout = QHBoxLayout()
 	HBlayout.setAlignment(Qt.AlignLeft)
 	HBlayout.addWidget(QLabelObjClsHandler)
@@ -492,7 +480,6 @@ def setLayoutObjectClassView(self):
 
 
 	self.clsObjHandler = clsObjTreeHandler(self)
-
 
 	VBlayoutObjClsHandler	 	= QVBoxLayout()
 	VBlayoutObjClsHandler.addLayout(HBlayout, 0.5)

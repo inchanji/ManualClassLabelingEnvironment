@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import * 
 from PyQt5.QtGui import *
 
-
 def createActions(self):
 	openShortcut 		= QShortcut(QKeySequence("Ctrl+o"), self)
 	openShortcut.activated.connect(self.loadImage) 
@@ -48,7 +47,6 @@ def createActions(self):
 	resetShorcut 		= QShortcut(QKeySequence("Ctrl+r"), self)
 	resetShorcut.activated.connect(self.resetImage)
 	#resetShorcut.activated.connect(self.resetSegImage)
-
 
 	decreaseClassLabelIdxShorcut	= QShortcut(QKeySequence("-"), self)
 	decreaseClassLabelIdxShorcut.activated.connect(self.decreaseClassLabelIdx)

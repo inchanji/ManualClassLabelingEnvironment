@@ -44,8 +44,6 @@ def IntToRGB(val, alpha = 255):
 def rgbColorSchemeLabel(idx, Nlabel, maxval = RGB_WHITE):
 	return int(maxval * idx / (Nlabel-1))
 
-
-
 def _get_ratio_height(width, height, r_width):
 	return int(r_width/width*height)
 
@@ -109,7 +107,6 @@ def getPointsInside(pts):
 	polygon = pts - [xmin, ymin]
 	path 	= matplotlib.path.Path(polygon)
 	mask 	= path.contains_points(points)
-
 	return points[mask] + [xmin, ymin]
 
 
@@ -157,8 +154,6 @@ def loadImage(self):
 	#	if askQuestion(self, 'Segmentation '+ pathsave +' found. Do you want to load it?'):
 	#		self.loadRetrieveClassLable(pathsave)
 
-
-
 def askQuestion(self, message):
 	msgbox 	= QMessageBox()
 	msgbox.setIcon(QMessageBox.Question)
@@ -169,10 +164,6 @@ def askQuestion(self, message):
 		return True
 	else:
 		return False	
-
-
-
-
 
 def RGBColorTable(i, cmap='prism'):
 	if i == 0: return 0

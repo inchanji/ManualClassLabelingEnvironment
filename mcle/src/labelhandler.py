@@ -6,7 +6,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from src.image import IntToRGB, rgbColorSchemeLabel, BndryLabelName, RGBAtoInt
 
-
 def loadClassLabel(self):
 	print('Load Class Labels: ', self.classLabelPath.text())
 
